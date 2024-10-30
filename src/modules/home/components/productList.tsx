@@ -1,0 +1,158 @@
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  ScrollView,
+} from "react-native";
+import React, { useState } from "react";
+import { Sneakers } from "@/constants/data"; // Adjust the path as needed
+import { ApSearchBar } from "./searchBar";
+import { ApIcon } from "@/src/components/icon";
+import { Link } from "expo-router";
+import { ProductCarousel } from "./carousel";
+import HomeHeader from "./homeHeader";
+
+export const ProductList = () => {
+  const [filteredData, setFilteredData] = useState(Sneakers);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [searchText, setSearchText] = useState("");
+  const categories = ["All", "Sneaker", "Sport", "Formal", "Adidas", "Another"];
+
+  // Function to filter sneakers based on category and search text
+  const handleFilterPress = (category: string) => {
+    setActiveCategory(category);
+    filterData(category, searchText);
+  };
+
+  const filterData = (category: string, search: string) => {
+    let data = Sneakers;
+
+    // Filter by category
+    if (category !== "All") {
+      data = data.filter((item) =>
+        item.title.toLowerCase().includes(category.toLowerCase())
+      );
+    }
+
+    // Filter by search text
+    if (search) {
+      data = data.filter((item) =>
+        item.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setFilteredData(data);
+  };
+
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    filterData(activeCategory, text);
+  };
+
+  const handleSearchPress = () => {
+    console.log("Search pressed");
+  };
+
+  const handleCartPress = () => {
+    console.log("Cart pressed");
+  };
+
+  const renderSneakerItem = ({
+    item,
+  }: {
+    item: { id: number; title: string; price: number; image: any };
+  }) => (
+    <TouchableOpacity className="bg-white rounded-lg shadow-md my-2 flex-1 mx-1 gap-x-2 relative bg-slate-200 mx-2">
+      <View>
+        <Image source={item.image} className="w-full h-40 rounded-lg" />
+        <View className="absolute   p-2">
+          <ApIcon size={25} name="hearto" type="AntDesign" color="#000" />
+        </View>
+
+        <Text className="font-bold text-lg mt-2">{item.title}</Text>
+        <Text className="">Men's Shoes</Text>
+        <View className="flex-row justify-between px-2">
+          <Text className=" text-xl font-extrabold text-gray-800 mt-2">
+            $ {item.price}
+          </Text>
+          <View className="bg-white p-2 m-2 rounded-lg">
+            <Link href={`/products/${item?.id}`}>
+              <ApIcon
+                size={14}
+                name="arrowright"
+                type="AntDesign"
+                color="#000"
+              />
+            </Link>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderHeader = () => {
+    const orderedCategories = [
+      activeCategory,
+      ...categories.filter((cat) => cat !== activeCategory),
+    ];
+
+    return (
+      <View className="bg-white">
+        {/* <ApSearchBar
+          searchText={searchText}
+          onSearchTextChange={handleSearch}
+        /> */}
+
+        <HomeHeader
+          title="KickHub"
+          onSearchPress={handleSearchPress}
+          onCartPress={handleCartPress}
+          cartItemCount={3}
+        />
+
+        <View>
+          <ProductCarousel />
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="py-2 rounded"
+        >
+          {orderedCategories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              onPress={() => handleFilterPress(category)}
+              className={`p-2 mx-1 rounded-full ${
+                activeCategory === category ? "bg-black" : "bg-white"
+              }`}
+            >
+              <Text
+                className={`text-md ${
+                  activeCategory === category ? "text-white" : "text-black"
+                }`}
+              >
+                {category}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  return (
+    <View>
+      <FlatList
+        data={filteredData}
+        renderItem={renderSneakerItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 2 }}
+        numColumns={2}
+        ListHeaderComponent={renderHeader}
+      />
+    </View>
+  );
+};
