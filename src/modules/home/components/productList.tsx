@@ -8,9 +8,8 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { Sneakers } from "@/constants/data"; // Adjust the path as needed
-import { ApSearchBar } from "./searchBar";
 import { ApIcon } from "@/src/components/icon";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { ProductCarousel } from "./carousel";
 import HomeHeader from "./homeHeader";
 
@@ -53,10 +52,12 @@ export const ProductList = () => {
 
   const handleSearchPress = () => {
     console.log("Search pressed");
+    router.navigate("/signin");
   };
 
   const handleCartPress = () => {
     console.log("Cart pressed");
+    router.navigate("/carts");
   };
 
   const renderSneakerItem = ({
@@ -78,7 +79,7 @@ export const ProductList = () => {
             $ {item.price}
           </Text>
           <View className="bg-white p-2 m-2 rounded-lg">
-            <Link href={`/products/${item?.id}`}>
+            <Link href={`/(products)/${item?.id}`}>
               <ApIcon
                 size={14}
                 name="arrowright"
@@ -144,7 +145,7 @@ export const ProductList = () => {
   };
 
   return (
-    <View>
+    <View className="bg-white">
       <FlatList
         data={filteredData}
         renderItem={renderSneakerItem}

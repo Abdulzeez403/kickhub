@@ -3,7 +3,7 @@ export const Sneakers = [
     id: 1,
     title: "Air Jordan 1",
     price: 150,
-    image: require("../assets/images/kickhubProducts/11.png"), // Update with correct path
+    image: require("../assets/images/kickhubProducts/toppng.png"), // Update with correct path
   },
   {
     id: 2,

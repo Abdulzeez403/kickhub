@@ -1,5 +1,8 @@
-import React, { FC } from "react";
+import SignInScreen from "@/src/modules/auth/signin";
+import React from "react";
 
-const SignInScreen = () => {};
+const ApSignInScreen = () => {
+  return <SignInScreen />;
+};
 
-export default SignInScreen;
+export default ApSignInScreen;

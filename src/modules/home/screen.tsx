@@ -4,7 +4,7 @@ import { View } from "react-native";
 
 const Homescreen = () => {
   return (
-    <View style={{ flex: 1, padding: 10 }}>
+    <View className="flex-1 p-2 pt-0">
       <ProductList />
     </View>
   );

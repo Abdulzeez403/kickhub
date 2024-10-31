@@ -1,40 +1,51 @@
-import React, { useContext, useState } from "react";
-import { TextInput, Text, Button, View } from "react-native";
-import * as Yup from "yup";
+// src/screens/SignUpScreen.tsx
+
+import React from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { TextInput, Button, Title, Subheading } from "react-native-paper";
 import { Formik } from "formik";
-import { AuthContext } from "./context";
+import * as Yup from "yup";
 import { router } from "expo-router";
 
-const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
-});
+const SignUpScreen: React.FC = () => {
+  const initialValues = {
+    email: "",
+    password: "",
+    confirmPassword: "",
+  };
 
-export const SignUpPage: React.FC = () => {
-  const authContext = useContext(AuthContext);
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm Password is required"),
+  });
 
-  if (!authContext) {
-    throw new Error("AuthContext must be used within an AuthProvider");
-  }
-
-  const { register, error, loading } = authContext;
-
-  const handleSubmit = (values: { email: string; password: string }) => {
-    register(values.email, values.password).then(() => {
-      router.navigate("signin");
-    });
+  const handleSignUp = (values: typeof initialValues) => {
+    console.log("Sign Up with", values);
+    // Add your sign-up logic here
   };
 
   return (
-    <View style={{ padding: 20 }}>
+    <SafeAreaView style={styles.container}>
+      <Title className="text-center">Create Account</Title>
+      <Subheading className="text-center">
+        Please fill in the details to sign up.
+      </Subheading>
+
       <Formik
-        initialValues={{ email: "", password: "" }}
+        initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={handleSignUp}
       >
         {({
           handleChange,
@@ -46,40 +57,82 @@ export const SignUpPage: React.FC = () => {
         }) => (
           <>
             <TextInput
-              placeholder="Email"
+              label="Email"
               value={values.email}
               onChangeText={handleChange("email")}
               onBlur={handleBlur("email")}
+              style={styles.input}
+              mode="outlined"
               keyboardType="email-address"
-              style={{ borderWidth: 1, padding: 10, marginVertical: 5 }}
+              autoCapitalize="none"
             />
-            {touched.email && errors.email ? (
-              <Text style={{ color: "red" }}>{errors.email}</Text>
-            ) : null}
+            {errors.email && touched.email && (
+              <Text style={styles.error}>{errors.email}</Text>
+            )}
 
             <TextInput
-              placeholder="Password"
+              label="Password"
               value={values.password}
               onChangeText={handleChange("password")}
               onBlur={handleBlur("password")}
+              style={styles.input}
+              mode="outlined"
               secureTextEntry
-              style={{ borderWidth: 1, padding: 10, marginVertical: 5 }}
             />
-            {touched.password && errors.password ? (
-              <Text style={{ color: "red" }}>{errors.password}</Text>
-            ) : null}
+            {errors.password && touched.password && (
+              <Text style={styles.error}>{errors.password}</Text>
+            )}
 
-            {error && <Text style={{ color: "red" }}>{error}</Text>}
+            <TextInput
+              label="Confirm Password"
+              value={values.confirmPassword}
+              onChangeText={handleChange("confirmPassword")}
+              onBlur={handleBlur("confirmPassword")}
+              style={styles.input}
+              mode="outlined"
+              secureTextEntry
+            />
+            {errors.confirmPassword && touched.confirmPassword && (
+              <Text style={styles.error}>{errors.confirmPassword}</Text>
+            )}
 
             <Button
-              title="Sign Up"
+              mode="contained"
               onPress={handleSubmit as any}
-              disabled={loading}
-            />
-            {loading && <Text>Loading...</Text>}
+              style={styles.button}
+            >
+              Sign Up
+            </Button>
+
+            <View className=" justify-center items-center pt-2">
+              <TouchableOpacity onPress={() => router.navigate("/signin")}>
+                <Text>You do have an account? </Text>
+              </TouchableOpacity>
+            </View>
           </>
         )}
       </Formik>
-    </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    justifyContent: "center",
+    backgroundColor: "white",
+  },
+  input: {
+    marginBottom: 12,
+  },
+  button: {
+    marginTop: 12,
+  },
+  error: {
+    color: "red",
+    marginBottom: 12,
+  },
+});
+
+export default SignUpScreen;

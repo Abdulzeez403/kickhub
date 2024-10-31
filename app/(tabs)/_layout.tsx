@@ -38,9 +38,9 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({
             IconComponent = AntDesign;
             iconName = "inbox"; // AntDesign icon
             break;
-          case "orders":
+          case "wishlist":
             IconComponent = AntDesign;
-            iconName = "shoppingcart"; // AntDesign icon for orders
+            iconName = "hearto"; // AntDesign icon for orders
             break;
           case "profile":
             IconComponent = AntDesign;
@@ -115,11 +115,11 @@ const TabLayout: React.FC = () => {
         }}
       />
       <Tabs.Screen
-        name="orders"
+        name="wishlist"
         options={{
-          title: "Order",
+          title: "WishList",
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="shoppingcart" color={color} size={size} />
+            <AntDesign name="hearto" color={color} size={size} />
           ),
         }}
       />

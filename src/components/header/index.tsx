@@ -2,6 +2,7 @@
 import React from "react";
 import { Appbar, Badge } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
+import { router } from "expo-router";
 
 interface HeaderProps {
   title: string;
@@ -18,8 +19,11 @@ const ApHeader: React.FC<HeaderProps> = ({
 }) => {
   return (
     <Appbar.Header style={styles.header}>
-      {onBack && <Appbar.BackAction onPress={onBack} />}
-      <Appbar.Content title={title} />
+      <Appbar.BackAction onPress={onBack || router.back} />
+      <Appbar.Content
+        className="flex-1 items-center text-center"
+        title={title}
+      />
       {rightIcon && (
         <View style={styles.iconContainer}>
           <Appbar.Action icon={rightIcon} onPress={() => {}} />
@@ -48,7 +52,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: -4,
     top: -2,
-    backgroundColor: "black",
+    backgroundColor: "red",
   },
 });
 

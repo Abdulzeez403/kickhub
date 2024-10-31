@@ -1,12 +1,9 @@
 import { View, Text } from "react-native";
 import React from "react";
+import CartScreen from "@/src/modules/carts/screen";
 
 const index = () => {
-  return (
-    <View>
-      <Text>Order</Text>
-    </View>
-  );
+  return <CartScreen />;
 };
 
 export default index;

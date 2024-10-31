@@ -1,8 +1,8 @@
-import { SignUpPage } from "@/src/modules/auth/signup";
-import React from "react"
+import SignUpScreen from "@/src/modules/auth/signup";
+import React from "react";
 
-const SignInScreen = () => {
-    return  <SignUpPage/>
-}
+const ApSignUpScreen = () => {
+  return <SignUpScreen />;
+};
 
-export default SignInScreen;
+export default ApSignUpScreen;

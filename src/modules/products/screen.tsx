@@ -54,18 +54,20 @@ export const ProductListScreen = () => {
   }: {
     item: { id: number; title: string; price: number; image: any };
   }) => (
-    <TouchableOpacity className="bg-white rounded-lg shadow-md my-2 flex-1 mx-1 gap-x-2 relative">
+    <TouchableOpacity className="bg-white rounded-lg shadow-md my-2 flex-1 mx-1 gap-x-2 relative bg-slate-200 mx-2">
       <View>
         <Image source={item.image} className="w-full h-40 rounded-lg" />
         <View className="absolute   p-2">
           <ApIcon size={25} name="hearto" type="AntDesign" color="#000" />
         </View>
-
         <Text className="font-bold text-lg mt-2">{item.title}</Text>
+        <Text className="">Men's Shoes</Text>
         <View className="flex-row justify-between px-2">
-          <Text className=" mt-1 font-bold">${item.price}</Text>
-          <View className="bg-slate-300 p-2">
-            <Link href={`/products/${item.id}`}>
+          <Text className=" text-xl font-extrabold text-gray-800 mt-2">
+            $ {item.price}
+          </Text>
+          <View className="bg-white p-2 m-2 rounded-lg">
+            <Link href={`/(products)/${item?.id}`}>
               <ApIcon
                 size={14}
                 name="arrowright"
@@ -86,7 +88,7 @@ export const ProductListScreen = () => {
     ];
 
     return (
-      <View className="py-2">
+      <View className="flex-1 p-2 pt-10 ">
         <ApSearchBar
           searchText={searchText}
           onSearchTextChange={handleSearch}
@@ -100,12 +102,12 @@ export const ProductListScreen = () => {
             <TouchableOpacity
               key={category}
               onPress={() => handleFilterPress(category)}
-              className={`p-2 mx-1 rounded ${
+              className={`p-2 mx-1 rounded-full ${
                 activeCategory === category ? "bg-black" : "bg-white"
               }`}
             >
               <Text
-                className={`text-lg ${
+                className={`text-md ${
                   activeCategory === category ? "text-white" : "text-black"
                 }`}
               >
@@ -119,13 +121,15 @@ export const ProductListScreen = () => {
   };
 
   return (
-    <FlatList
-      data={filteredData}
-      renderItem={renderSneakerItem}
-      keyExtractor={(item) => item.id.toString()}
-      contentContainerStyle={{ padding: 2 }}
-      numColumns={2}
-      ListHeaderComponent={renderHeader}
-    />
+    <View className="bg-white">
+      <FlatList
+        data={filteredData}
+        renderItem={renderSneakerItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 2 }}
+        numColumns={2}
+        ListHeaderComponent={renderHeader}
+      />
+    </View>
   );
 };
