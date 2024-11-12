@@ -10,11 +10,20 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import ApHeader from "@/src/components/header";
+import { useDispatch } from "react-redux";
+import { logout } from "@/src/redux/auth/auth";
+import { AppDispatch } from "@/src/redux/store";
 
 const SettingsScreen: React.FC = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const toggleNotifications = () => setNotificationsEnabled((prev) => !prev);
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 px-4">
@@ -44,7 +53,10 @@ const SettingsScreen: React.FC = () => {
       </TouchableOpacity>
 
       {/* Log Out Button */}
-      <TouchableOpacity className="flex-row justify-center items-center p-4 bg-red-600 rounded-md mt-6 shadow-md">
+      <TouchableOpacity
+        className="flex-row justify-center items-center p-4 bg-red-600 rounded-md mt-6 shadow-md"
+        onPress={handleLogout}
+      >
         <Ionicons name="log-out-outline" size={20} color="white" />
         <Text className="text-lg text-white font-semibold ml-2">Log Out</Text>
       </TouchableOpacity>

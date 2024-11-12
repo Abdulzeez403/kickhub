@@ -4,8 +4,8 @@ import {
   Text,
   View,
   FlatList,
-  StyleSheet,
   TextInput,
+  Alert,
 } from "react-native";
 import {
   Button,
@@ -16,6 +16,9 @@ import {
   PaperProvider,
 } from "react-native-paper";
 import ApHeader from "@/src/components/header";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/src/redux/store";
+import { placeOrder } from "@/src/redux/order/orderThunk";
 
 const CheckoutScreen: React.FC = () => {
   const [shippingAddress, setShippingAddress] = useState("");
@@ -24,23 +27,23 @@ const CheckoutScreen: React.FC = () => {
   const [addressModalVisible, setAddressModalVisible] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const savedAddresses = [
     { id: "1", label: "Home - 123 Main St" },
     { id: "2", label: "Office - 456 Market St" },
     { id: "3", label: "Parents - 789 Elm St" },
   ];
 
-  const cartItems = [
-    { id: "1", title: "Sneakers", price: "59.99", quantity: 1 },
-    { id: "2", title: "Jacket", price: "89.99", quantity: 2 },
-  ];
+  // Fetch cart items from Redux
+  const cartItems = useSelector((state: RootState) => state.cart.items);
 
   const originalTotalPrice = cartItems
-    .reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0)
-    .toFixed(2) as any;
+    .reduce((sum, item) => sum + item.price * item.quantity, 0)
+    .toFixed(2);
 
   const discountedPrice = discountApplied
-    ? (originalTotalPrice * 0.9).toFixed(2)
+    ? (parseFloat(originalTotalPrice) * 0.9).toFixed(2)
     : originalTotalPrice;
 
   const handleApplyDiscount = () => {
@@ -51,73 +54,85 @@ const CheckoutScreen: React.FC = () => {
     }
   };
 
-  const handlePayment = () => {
-    console.log("Proceeding to payment");
+  const handlePlaceOrder = async () => {
+    if (!selectedAddress) {
+      Alert.alert("Address Required", "Please select a shipping address.");
+      return;
+    }
+
+    try {
+      dispatch(
+        placeOrder({
+          items: cartItems,
+          totalAmount: parseFloat(discountedPrice),
+          paymentStatus: "unpaid",
+          status: "pending",
+        })
+      );
+    } catch (error) {
+      console.error("Order Placement Error:", error);
+    }
   };
 
   const toggleAddressModal = () => setAddressModalVisible(!addressModalVisible);
 
   return (
     <PaperProvider>
-      <SafeAreaView style={styles.container}>
-        <ApHeader title="Checkout" />
+      <SafeAreaView className="flex-1 p-4 bg-white">
+        <ApHeader title="Checkout" cartCount={cartItems.length} />
 
         <FlatList
           data={cartItems}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemPrice}>
-                ${item.price} x {item.quantity}
+            <View className="flex-row justify-between py-2 border-b border-gray-300">
+              <Text className="text-lg">{item.name}</Text>
+              <Text className="text-lg font-bold">
+                ${item.price * item.quantity}
               </Text>
             </View>
           )}
           ListFooterComponent={() => (
             <>
-              <View style={styles.totalContainer}>
-                <Text style={styles.totalText}>Total Amount:</Text>
-                <Text style={styles.totalPrice}>${discountedPrice}</Text>
+              <View className="flex-row justify-between py-2 mt-5">
+                <Text className="text-xl font-bold">Total Amount:</Text>
+                <Text className="text-xl font-bold text-gray-700">
+                  ${discountedPrice}
+                </Text>
               </View>
-
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Shipping Address</Text>
+              {/* 
+              <View className="mt-5">
+                <Text className="text-lg font-bold mb-2">Shipping Address</Text>
                 <Button onPress={toggleAddressModal}>
                   {selectedAddress || "Select Address"}
                 </Button>
-              </View>
+              </View> */}
 
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Discount Code</Text>
+              {/* <View className="mt-5">
+                <Text className="text-lg font-bold mb-2">Discount Code</Text>
                 <TextInput
-                  style={styles.input}
+                  className="border border-gray-300 rounded p-2 text-lg"
                   placeholder="Enter discount code"
                   value={discountCode}
                   onChangeText={setDiscountCode}
                 />
-                <Button
-                  onPress={handleApplyDiscount}
-                  style={styles.applyDiscountButton}
-                >
+                <Button onPress={handleApplyDiscount} className="mt-3">
                   Apply Discount
                 </Button>
-              </View>
+              </View> */}
             </>
           )}
         />
 
-        <View style={styles.buttonContainer}>
+        <View className="mt-10 px-4">
           <Button
             mode="contained"
-            onPress={handlePayment}
-            style={{
-              backgroundColor: "black",
-              paddingVertical: 4,
-            }}
+            onPress={handlePlaceOrder}
+            className="bg-black py-1"
             contentStyle={{ flexDirection: "row-reverse" }}
             labelStyle={{ color: "white", fontSize: 16 }}
           >
-            Proceed to Payment
+            Place Order
           </Button>
         </View>
 
@@ -125,9 +140,15 @@ const CheckoutScreen: React.FC = () => {
           <Modal
             visible={addressModalVisible}
             onDismiss={toggleAddressModal}
-            contentContainerStyle={styles.modalContainer}
+            contentContainerStyle={{
+              padding: 20,
+              marginHorizontal: 20,
+              borderRadius: 10,
+            }}
           >
-            <Text style={styles.modalTitle}>Select Shipping Address</Text>
+            <Text className="text-xl font-bold mb-4 text-center">
+              Select Shipping Address
+            </Text>
             <RadioButton.Group
               onValueChange={(value) => setSelectedAddress(value)}
               value={selectedAddress}
@@ -150,76 +171,5 @@ const CheckoutScreen: React.FC = () => {
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "white",
-  },
-  item: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-  },
-  itemTitle: {
-    fontSize: 16,
-  },
-  itemPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  totalContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    marginTop: 20,
-  },
-  totalText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  totalPrice: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  sectionContainer: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 4,
-    padding: 8,
-    fontSize: 16,
-  },
-  applyDiscountButton: {
-    marginTop: 10,
-  },
-  buttonContainer: {
-    marginTop: 30,
-    paddingHorizontal: 16,
-  },
-  modalContainer: {
-    backgroundColor: "white",
-    padding: 20,
-    marginHorizontal: 20,
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-});
 
 export default CheckoutScreen;

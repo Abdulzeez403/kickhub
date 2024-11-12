@@ -1,7 +1,8 @@
 // src/screens/SignUpScreen.tsx
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
+  Alert,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -12,33 +13,55 @@ import { TextInput, Button, Title, Subheading } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { router } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { register } from "@/src/redux/auth/auth";
+import { RootState } from "@/src/redux/store";
+import { AppDispatch } from "../../../src/redux/store"; // Adjust path to your store file
 
 const SignUpScreen: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+
   const initialValues = {
+    lastName: "",
+    firstName: "",
+    username: "",
     email: "",
     password: "",
-    confirmPassword: "",
   };
 
   const validationSchema = Yup.object().shape({
+    lastName: Yup.string().required("Last name is required"),
+    firstName: Yup.string().required("First name is required"),
+    username: Yup.string().required("Username is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .required("Password is required"),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref("password"), null], "Passwords must match")
-      .required("Confirm Password is required"),
+    password: Yup.string().required("Password is required"),
   });
 
-  const handleSignUp = (values: typeof initialValues) => {
-    console.log("Sign Up with", values);
-    // Add your sign-up logic here
+  const handleSignUp = async (values: typeof initialValues) => {
+    try {
+      await dispatch(register(values)).unwrap(); // Await the async thunk to handle errors here
+      router.navigate("/signin");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", (error as any).toString());
+    }
   };
+
+  // useEffect(() => {
+  //   if (user) {
+  //     Alert.alert("Success", "Account created successfully!");
+  //     router.navigate("/signin");
+  //   }
+  //   if (error) {
+  //     Alert.alert("Error", error);
+  //   }
+  // }, [user, error]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Title className="text-center">Create Account</Title>
-      <Subheading className="text-center">
+      <Title style={styles.title}>Create Account</Title>
+      <Subheading style={styles.subheading}>
         Please fill in the details to sign up.
       </Subheading>
 
@@ -57,6 +80,33 @@ const SignUpScreen: React.FC = () => {
         }) => (
           <>
             <TextInput
+              label="First Name"
+              value={values.firstName}
+              onChangeText={handleChange("firstName")}
+              onBlur={handleBlur("firstName")}
+              style={styles.input}
+              mode="outlined"
+            />
+
+            <TextInput
+              label="Last Name"
+              value={values.lastName}
+              onChangeText={handleChange("lastName")}
+              onBlur={handleBlur("lastName")}
+              style={styles.input}
+              mode="outlined"
+            />
+
+            <TextInput
+              label="Username"
+              value={values.username}
+              onChangeText={handleChange("username")}
+              onBlur={handleBlur("username")}
+              style={styles.input}
+              mode="outlined"
+            />
+
+            <TextInput
               label="Email"
               value={values.email}
               onChangeText={handleChange("email")}
@@ -66,9 +116,6 @@ const SignUpScreen: React.FC = () => {
               keyboardType="email-address"
               autoCapitalize="none"
             />
-            {errors.email && touched.email && (
-              <Text style={styles.error}>{errors.email}</Text>
-            )}
 
             <TextInput
               label="Password"
@@ -79,34 +126,19 @@ const SignUpScreen: React.FC = () => {
               mode="outlined"
               secureTextEntry
             />
-            {errors.password && touched.password && (
-              <Text style={styles.error}>{errors.password}</Text>
-            )}
-
-            <TextInput
-              label="Confirm Password"
-              value={values.confirmPassword}
-              onChangeText={handleChange("confirmPassword")}
-              onBlur={handleBlur("confirmPassword")}
-              style={styles.input}
-              mode="outlined"
-              secureTextEntry
-            />
-            {errors.confirmPassword && touched.confirmPassword && (
-              <Text style={styles.error}>{errors.confirmPassword}</Text>
-            )}
 
             <Button
               mode="contained"
               onPress={handleSubmit as any}
               style={styles.button}
+              loading={loading}
             >
-              Sign Up
+              {loading ? "Signing Up..." : "Sign Up"}
             </Button>
 
-            <View className=" justify-center items-center pt-2">
+            <View style={styles.signinContainer}>
               <TouchableOpacity onPress={() => router.navigate("/signin")}>
-                <Text>You do have an account? </Text>
+                <Text>Already have an account? Sign In</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -123,6 +155,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "white",
   },
+  title: {
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  subheading: {
+    textAlign: "center",
+    marginBottom: 16,
+  },
   input: {
     marginBottom: 12,
   },
@@ -132,6 +172,11 @@ const styles = StyleSheet.create({
   error: {
     color: "red",
     marginBottom: 12,
+  },
+  signinContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 8,
   },
 });
 

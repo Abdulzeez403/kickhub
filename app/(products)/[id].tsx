@@ -6,28 +6,30 @@ import {
   ScrollView,
   TouchableOpacity,
   FlatList,
+  Dimensions,
+  Animated,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import ApHeader from "@/src/components/header";
 import { ApIcon } from "@/src/components/icon";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/src/redux/store";
+import { addToCart } from "@/src/redux/carts/cartSlice";
+import { addToWishlist } from "@/src/redux/wishlist/wishlist";
+import { fetchProductById } from "@/src/redux/product/products";
+import { IImage } from "@/src/redux/product/type";
+import Carousel from "react-native-reanimated-carousel";
 
 type ProductDetailParams = {
   id: string;
 };
 
-type Product = {
-  id: string;
-  title: string;
-  price: string;
-  description: string;
-  images: any[]; // Array of images
-};
-
 const StarRating = ({ rating }: { rating: number }) => (
-  <View style={{ flexDirection: "row" }}>
+  <View className="flex-row">
     {Array.from({ length: 5 }).map((_, index) => (
       <FontAwesome
         key={index}
@@ -46,174 +48,149 @@ const ProductDetail = () => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // State for selected size and color
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-
-  const product: Product = {
-    id,
-    title: "New Balance 550",
-    price: "$29.99",
-    description:
-      "This is a detailed description of the product. It includes all the features and specifications. This is a detailed description of the product. It includes all the features and specifications.",
-    images: [
-      require("../../assets/images/kickhubProducts/Green 1.png"),
-      require("../../assets/images/kickhubProducts/Shoe 1.png"),
-      require("../../assets/images/kickhubProducts/Shoe 1.png"),
-    ],
+  const dispatch = useDispatch<AppDispatch>();
+  const width = Dimensions.get("window").width;
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const { loading, error, product } = useSelector(
+    (state: RootState) => state.products
+  );
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+  const handleCartPress = () => {
+    isLoggedIn ? router.navigate("/carts") : router.navigate("/signup");
   };
 
+  const scale = new Animated.Value(1);
+
+  console.log(cartItems, "the carts...");
+
+  useEffect(() => {
+    dispatch(fetchProductById(id));
+  }, []);
+
   const sizes = ["S", "M", "L", "XL"];
-  const colors = ["Red", "Blue", "Green"];
+  const colors = ["#FF0000", "#0000FF", "#008000"]; // Use hex codes for color swatches
 
   const shortDescription =
-    product.description.split(" ").slice(0, 30).join(" ") + " ...";
+    product?.description?.split(" ").slice(0, 30).join(" ") + " ...";
 
-  const addToCart = () => setCartCount(cartCount + quantity);
+  const handleAddToCart = () => {
+    const payload = {
+      ...product,
+      quantity: 2,
+      size: selectedSize,
+      color: selectedColor,
+    };
+    dispatch(addToCart(payload as any));
+    setCartCount(cartCount + quantity);
 
-  const renderImage = ({ item }: { item: any }) => (
-    <Image
-      source={item}
-      style={{ width: "100%", height: 240, borderRadius: 10 }} // Adjust styles as needed
-      resizeMode="contain"
-    />
+    Alert.alert("Cart Added");
+  };
+
+  const handleAddToWishlist = () => {
+    dispatch(addToWishlist(product as any));
+  };
+
+  // Handle the bounce effect when a new item is shown
+  const handleSnap = (index: any) => {
+    setCurrentIndex(index);
+    // Bounce animation
+    scale.setValue(1); // Reset scale
+    Animated.spring(scale, {
+      toValue: 1.2, // Make image bounce (scale up)
+      friction: 3, // Bouncing effect intensity
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.spring(scale, {
+        toValue: 1, // Reset back to normal size
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const renderImage = ({ item }: { item: IImage }) => (
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Image
+        source={{ uri: item?.uri }}
+        className="w-full h-60 rounded-lg"
+        resizeMode="contain"
+      />
+    </Animated.View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView className="flex-1 bg-white">
       <ApHeader
-        title={product.title}
-        rightIcon="cart"
-        cartCount={cartCount}
-        // onBack={() => router.push("/products")}
+        title={product?.name as any}
+        onCartPress={handleCartPress}
+        cartCount={cartItems?.length}
       />
 
-      <ScrollView style={{ padding: 16, marginBottom: 80 }}>
-        <View style={{ position: "relative" }}>
-          <FlatList
-            data={product.images}
+      <ScrollView className="px-4 mb-20">
+        <View className="relative">
+          <Carousel
+            width={width}
+            height={width * 0.7}
+            data={product?.images || []}
             renderItem={renderImage}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            onMomentumScrollEnd={(event) => {
-              const index = Math.floor(
-                event.nativeEvent.contentOffset.x /
-                  event.nativeEvent.layoutMeasurement.width
-              );
-              setCurrentIndex(index);
-            }}
-            keyExtractor={(item, index) => index.toString()}
+            scrollAnimationDuration={100}
+            // mode="horizontal"
+            onSnapToItem={handleSnap}
+            loop
           />
-          <View
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              flexDirection: "row",
-              justifyContent: "center",
-              marginBottom: 16,
-            }}
-          >
-            {product.images.map((_, index) => (
+          <View className="absolute bottom-0 left-0 right-0 flex-row justify-center mb-4">
+            {product?.images.map((_, index) => (
               <View
                 key={index}
-                style={{
-                  height: 8,
-                  width: 8,
-                  borderRadius: 4,
-                  marginHorizontal: 4,
-                  backgroundColor: index === currentIndex ? "black" : "gray",
-                }}
+                className={`h-2 w-2 rounded-full mx-1 ${
+                  index === currentIndex ? "bg-black" : "bg-gray-400"
+                }`}
               />
             ))}
           </View>
         </View>
 
-        <View style={{ marginTop: 24 }}>
-          <Text
-            style={{
-              fontSize: 24,
-              fontWeight: "bold",
-              color: "#7F9C9F",
-              marginBottom: 4,
-            }}
-          >
-            Men's Shoe
+        <View className="mt-6">
+          <Text className="text-2xl font-bold text-teal-800 mb-1">
+            {product?.tag}
           </Text>
-          <Text style={{ fontSize: 24, fontWeight: "bold" }}>
-            {product.title}
-          </Text>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text className="text-2xl font-bold">{product?.name}</Text>
+          <View className="flex-row justify-between items-center mt-2">
+            <View className="flex-row items-center">
               <StarRating rating={4} />
-              <Text>
-                <Text style={{ fontWeight: "bold", fontSize: 16 }}>4.5</Text>{" "}
-                (Reviews)
-              </Text>
+              <Text className="ml-1 text-lg font-semibold">4.5 (Reviews)</Text>
             </View>
-            <Text style={{ color: "black", fontSize: 20 }}>
-              {product.price}
-            </Text>
+            <Text className="text-2xl font-semibold">${product?.price}</Text>
           </View>
 
-          <View style={{ alignItems: "center", position: "relative" }}>
-            <Text
-              style={{
-                fontSize: 16,
-                color: "gray",
-                marginBottom: 24,
-                marginTop: 8,
-              }}
-            >
-              {showFullDescription ? (
-                product.description
-              ) : (
-                <>{shortDescription}</>
-              )}
-            </Text>
-            <View style={{ position: "absolute", bottom: -2 }}>
-              <Button
-                mode="text"
-                onPress={() => setShowFullDescription(!showFullDescription)}
-                style={{ padding: 0 }}
-              >
-                {showFullDescription ? "Less" : "More"}
-              </Button>
-            </View>
-          </View>
+          <Text className="text-gray-600 mt-3">
+            {showFullDescription ? product?.description : shortDescription}
+          </Text>
+          <Button
+            mode="text"
+            onPress={() => setShowFullDescription(!showFullDescription)}
+          >
+            {showFullDescription ? "Less" : "More"}
+          </Button>
 
           {/* Size Selector */}
-          <View style={{ marginVertical: 16 }}>
-            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 8 }}>
-              Select Size:
-            </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          <View className="my-4">
+            <Text className="text-lg font-bold mb-2">Select Size:</Text>
+            <View className="flex-row flex-wrap">
               {sizes.map((size) => (
                 <TouchableOpacity
                   key={size}
                   onPress={() => setSelectedSize(size)}
-                  style={{
-                    padding: 8,
-                    borderRadius: 8,
-                    backgroundColor:
-                      selectedSize === size ? "black" : "lightgray",
-                    marginRight: 8,
-                    marginBottom: 8,
-                  }}
+                  className={`p-2 rounded-lg mr-2 mb-2 ${
+                    selectedSize === size ? "bg-black" : "bg-gray-200"
+                  }`}
                 >
                   <Text
-                    style={{
-                      color: selectedSize === size ? "white" : "black",
-                      fontWeight: "bold",
-                    }}
+                    className={`${
+                      selectedSize === size ? "text-white" : "text-black"
+                    } font-bold`}
                   >
                     {size}
                   </Text>
@@ -223,71 +200,36 @@ const ProductDetail = () => {
           </View>
 
           {/* Color Selector */}
-          <View style={{ marginVertical: 16 }}>
-            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 8 }}>
-              Select Color:
-            </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-              {colors.map((color) => (
+          <View className="my-4">
+            <Text className="text-lg font-bold mb-2">Select Color:</Text>
+            <View className="flex-row flex-wrap">
+              {colors.map((color, index) => (
                 <TouchableOpacity
-                  key={color}
+                  key={index}
                   onPress={() => setSelectedColor(color)}
-                  style={{
-                    padding: 8,
-                    borderRadius: 8,
-                    backgroundColor:
-                      selectedColor === color ? "black" : "lightgray",
-                    marginRight: 8,
-                    marginBottom: 8,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: selectedColor === color ? "white" : "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {color}
-                  </Text>
-                </TouchableOpacity>
+                  className={`p-2 rounded-full mr-2 mb-2 ${
+                    selectedColor === color ? "border-2 border-black" : ""
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
               ))}
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View
-        style={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          padding: 16,
-          backgroundColor: "white",
-          borderColor: "gray",
-          borderTopWidth: 1,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 16,
-            width: "100%",
-          }}
-        >
-          <View>
+      {/* Bottom Buttons */}
+      <View className="absolute bottom-0 w-full p-4 bg-white border-t border-gray-300">
+        <View className="flex-row items-center gap-4 w-full">
+          <TouchableOpacity onPress={handleAddToWishlist}>
             <ApIcon name="hearto" size={30} type="AntDesign" />
-          </View>
-          <View style={{ flex: 1 }}>
+          </TouchableOpacity>
+          <View className="flex-1">
             <Button
               mode="contained"
-              onPress={addToCart}
+              onPress={handleAddToCart}
               icon="cart"
-              style={{
-                backgroundColor: "black",
-                paddingVertical: 4,
-                width: "100%",
-              }}
+              className="bg-black py-2"
               contentStyle={{ flexDirection: "row-reverse" }}
               labelStyle={{ color: "white", fontSize: 16 }}
             >

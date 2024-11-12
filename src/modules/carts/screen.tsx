@@ -6,38 +6,31 @@ import CartCard from "./omponents/cartCard";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "react-native-paper";
 import { router } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/src/redux/store";
+import { removeFromCart } from "@/src/redux/carts/cartSlice";
 
 const CartScreen: React.FC = () => {
-  const cartItems = [
-    {
-      id: "1",
-      title: "Sneakers",
-      image: require("../../../assets/images/kickhubProducts/Green 1.png"),
-      price: "59.99",
-      quantity: 1,
-    },
-    {
-      id: "2",
-      title: "Jacket",
-      image: require("../../../assets/images/kickhubProducts/toppng.png"),
-      price: "89.99",
-      quantity: 2,
-    },
-  ];
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+  const dispatch = useDispatch<AppDispatch>();
 
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const handleCartPress = () => {
+    isLoggedIn ? router.navigate("/carts") : router.navigate("/signup");
+  };
   const handleRemove = (id: string) => {
-    console.log(`Remove item with id: ${id}`);
+    dispatch(removeFromCart(id));
   };
 
-  const handleQuantityChange = (id: string, newQuantity: number) => {
-    console.log(`Item id: ${id}, new quantity: ${newQuantity}`);
-  };
+  const handleQuantityChange = (id: string, newQuantity: number) => {};
 
   const cartCount = cartItems.length;
+
   const totalPrice = useMemo(() => {
-    return cartItems
-      .reduce((sum, item) => sum + parseFloat(item.price) * item.quantity, 0)
-      .toFixed(2);
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   }, [cartItems]);
 
   return (
@@ -49,11 +42,15 @@ const CartScreen: React.FC = () => {
         backgroundColor: "white",
       }}
     >
-      <ApHeader title="Carts" rightIcon="cart" cartCount={cartCount} />
+      <ApHeader
+        title="Carts"
+        onCartPress={handleCartPress}
+        cartCount={cartCount}
+      />
 
       <SwipeListView
         data={cartItems}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <CartCard item={item} onQuantityChange={handleQuantityChange} />
         )}
@@ -71,7 +68,7 @@ const CartScreen: React.FC = () => {
             }}
           >
             <TouchableOpacity
-              onPress={() => handleRemove(item.id)}
+              onPress={() => handleRemove(item._id)}
               className="rounded-lg"
             >
               <Ionicons name="trash" color="white" size={42} />

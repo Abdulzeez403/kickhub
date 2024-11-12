@@ -12,9 +12,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useColorScheme } from "react-native";
-import { AuthProvider } from "@/src/modules/auth/context";
+import store from "@/src/redux/store";
+import { Provider } from "react-redux";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -70,7 +70,7 @@ function RootLayoutNav() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
+      <Provider store={store}>
         <BottomSheetModalProvider>
           <SafeAreaProvider>
             <ThemeProvider
@@ -100,7 +100,7 @@ function RootLayoutNav() {
             </ThemeProvider>
           </SafeAreaProvider>
         </BottomSheetModalProvider>
-      </AuthProvider>
+      </Provider>
     </GestureHandlerRootView>
   );
 }

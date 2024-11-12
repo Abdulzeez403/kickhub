@@ -1,5 +1,3 @@
-// src/screens/SignInScreen.tsx
-
 import React from "react";
 import {
   SafeAreaView,
@@ -7,13 +5,23 @@ import {
   TouchableOpacity,
   View,
   Text,
+  Alert,
 } from "react-native";
 import { TextInput, Button, Title, Subheading } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { router } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/src/redux/store";
+import { login } from "@/src/redux/auth/auth";
+import { AppDispatch } from "../../../src/redux/store"; // Adjust path to your store file
 
 const SignInScreen: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.auth
+  );
   const initialValues = {
     email: "",
     password: "",
@@ -26,9 +34,14 @@ const SignInScreen: React.FC = () => {
       .required("Password is required"),
   });
 
-  const handleSignIn = (values: typeof initialValues) => {
-    console.log("Sign In with", values);
-    // Add your sign-in logic here
+  const handleSignIn = async (values: typeof initialValues) => {
+    try {
+      await dispatch(login(values)).unwrap(); // Await the async thunk to handle errors here
+      router.navigate("/home");
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", (error as any).toString());
+    }
   };
 
   return (
@@ -83,6 +96,7 @@ const SignInScreen: React.FC = () => {
               mode="contained"
               onPress={handleSubmit as any}
               style={styles.button}
+              loading={loading}
             >
               Sign In
             </Button>

@@ -12,6 +12,7 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "service/apis.js"
+    "service/apis.js",
+    "src/redux/store.ts"
   ]
 }

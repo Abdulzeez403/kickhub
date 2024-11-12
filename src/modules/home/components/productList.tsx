@@ -6,18 +6,41 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
-import { Sneakers } from "@/constants/data"; // Adjust the path as needed
+import React, { useEffect, useState } from "react";
 import { ApIcon } from "@/src/components/icon";
 import { Link, router } from "expo-router";
 import { ProductCarousel } from "./carousel";
 import HomeHeader from "./homeHeader";
+import { currentUser } from "@/src/redux/auth/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/src/redux/store";
+import { IProduct } from "@/src/redux/product/type";
+import { fetchProducts } from "@/src/redux/product/products";
 
 export const ProductList = () => {
-  const [filteredData, setFilteredData] = useState(Sneakers);
-  const [activeCategory, setActiveCategory] = useState("All");
+  const {
+    // loading,
+    // error,
+    items: Products, // Use items for all products
+  } = useSelector((state: RootState) => state.products);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+
+  const [filteredData, setFilteredData] = useState(Products);
   const [searchText, setSearchText] = useState("");
   const categories = ["All", "Sneaker", "Sport", "Formal", "Adidas", "Another"];
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const dispatch = useDispatch<AppDispatch>();
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+
+  const { user, loading, error } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  useEffect(() => {
+    dispatch(currentUser());
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   // Function to filter sneakers based on category and search text
   const handleFilterPress = (category: string) => {
@@ -26,23 +49,23 @@ export const ProductList = () => {
   };
 
   const filterData = (category: string, search: string) => {
-    let data = Sneakers;
+    let data: IProduct[] = Products;
 
     // Filter by category
     if (category !== "All") {
-      data = data.filter((item) =>
-        item.title.toLowerCase().includes(category.toLowerCase())
+      data = data.filter((item: any) =>
+        item.name.toLowerCase().includes(category.toLowerCase())
       );
     }
 
     // Filter by search text
     if (search) {
-      data = data.filter((item) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+      data = data.filter((item: any) =>
+        item.name.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    setFilteredData(data);
+    setFilteredData(data as any);
   };
 
   const handleSearch = (text: string) => {
@@ -56,30 +79,28 @@ export const ProductList = () => {
   };
 
   const handleCartPress = () => {
-    console.log("Cart pressed");
-    router.navigate("/carts");
+    isLoggedIn ? router.navigate("/carts") : router.navigate("/signup");
   };
 
-  const renderSneakerItem = ({
-    item,
-  }: {
-    item: { id: number; title: string; price: number; image: any };
-  }) => (
+  const renderSneakerItem = ({ item }: { item: IProduct }) => (
     <TouchableOpacity className="bg-white rounded-lg shadow-md my-2 flex-1 mx-1 gap-x-2 relative bg-slate-200 mx-2">
       <View>
-        <Image source={item.image} className="w-full h-40 rounded-lg" />
+        <Image
+          source={{ uri: item.images[0].uri as any }}
+          className="w-full h-40 rounded-lg"
+        />
         <View className="absolute   p-2">
           <ApIcon size={25} name="hearto" type="AntDesign" color="#000" />
         </View>
 
-        <Text className="font-bold text-lg mt-2">{item.title}</Text>
-        <Text className="">Men's Shoes</Text>
+        <Text className="font-bold text-lg mt-2">{item.name}</Text>
+        <Text className="">{item.tag}</Text>
         <View className="flex-row justify-between px-2">
           <Text className=" text-xl font-extrabold text-gray-800 mt-2">
             $ {item.price}
           </Text>
           <View className="bg-white p-2 m-2 rounded-lg">
-            <Link href={`/(products)/${item?.id}`}>
+            <Link href={`/(products)/${item?._id}`}>
               <ApIcon
                 size={14}
                 name="arrowright"
@@ -110,7 +131,7 @@ export const ProductList = () => {
           title="KickHub"
           onSearchPress={handleSearchPress}
           onCartPress={handleCartPress}
-          cartItemCount={3}
+          cartItemCount={cartItems?.length}
         />
 
         <View>
@@ -149,7 +170,7 @@ export const ProductList = () => {
       <FlatList
         data={filteredData}
         renderItem={renderSneakerItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item: any) => item._id}
         contentContainerStyle={{ padding: 2 }}
         numColumns={2}
         ListHeaderComponent={renderHeader}

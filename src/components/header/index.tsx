@@ -1,20 +1,20 @@
 // src/components/Header.tsx
 import React from "react";
-import { Appbar, Badge } from "react-native-paper";
+import { Appbar, Badge, IconButton } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import { router } from "expo-router";
 
 interface HeaderProps {
   title: string;
   onBack?: () => void;
-  rightIcon?: string;
-  cartCount?: number;
+  onCartPress?: () => void;
+  cartCount: number;
 }
 
 const ApHeader: React.FC<HeaderProps> = ({
   title,
   onBack,
-  rightIcon,
+  onCartPress,
   cartCount,
 }) => {
   return (
@@ -24,12 +24,28 @@ const ApHeader: React.FC<HeaderProps> = ({
         className="flex-1 items-center text-center"
         title={title}
       />
-      {rightIcon && (
-        <View style={styles.iconContainer}>
-          <Appbar.Action icon={rightIcon} onPress={() => {}} />
-          {cartCount ? <Badge style={styles.badge}>{cartCount}</Badge> : null}
-        </View>
-      )}
+
+      {/* Cart Icon with Badge */}
+      <View>
+        <IconButton
+          icon="cart"
+          onPress={onCartPress}
+          accessibilityLabel="Cart"
+        />
+        {cartCount > 0 && (
+          <Badge
+            style={{
+              position: "absolute",
+              top: 5,
+              right: 5,
+              backgroundColor: "red",
+            }}
+            size={18}
+          >
+            {cartCount}
+          </Badge>
+        )}
+      </View>
     </Appbar.Header>
   );
 };
