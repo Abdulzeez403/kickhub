@@ -8,9 +8,9 @@ const API_URL = "http://192.168.43.233:5000/api/orders"; // Adjust based on your
 export const placeOrder = createAsyncThunk(
   "order/placeOrder",
   async (items: OrderItems) => {
-    try {
-      const token = await AsyncStorage.getItem("userToken");
+    const token = await AsyncStorage.getItem("userToken");
 
+    try {
       const response = await axios.post(API_URL, items, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -26,9 +26,16 @@ export const placeOrder = createAsyncThunk(
 export const fetchUserOrders = createAsyncThunk(
   "order/fetchUserOrders",
   async (userId: string) => {
+    const token = await AsyncStorage.getItem("userToken");
+
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${userId}`
+        `http://192.168.43.233:5000/api/orders/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {

@@ -25,7 +25,7 @@ const ProfileScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-4">
+    <SafeAreaView className="flex-1 bg-white px-4 pt-4">
       <View className="items-center mb-6 mt-6">
         <Image
           source={{ uri: "https://placekitten.com/200/200" }} // Replace with actual user image URL

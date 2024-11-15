@@ -58,13 +58,11 @@ const ProductDetail = () => {
   );
   const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
   const handleCartPress = () => {
-    isLoggedIn ? router.navigate("/carts") : router.navigate("/signup");
+    isLoggedIn ? router.navigate("./carts") : router.navigate("/signup");
+    console.log("working...");
   };
 
   const scale = new Animated.Value(1);
-
-  console.log(cartItems, "the carts...");
-
   useEffect(() => {
     dispatch(fetchProductById(id));
   }, []);
@@ -78,7 +76,7 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     const payload = {
       ...product,
-      quantity: 2,
+      quantity: 1,
       size: selectedSize,
       color: selectedColor,
     };

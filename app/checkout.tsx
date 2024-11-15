@@ -55,10 +55,10 @@ const CheckoutScreen: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!selectedAddress) {
-      Alert.alert("Address Required", "Please select a shipping address.");
-      return;
-    }
+    // if (!selectedAddress) {
+    //   Alert.alert("Address Required", "Please select a shipping address.");
+    //   return;
+    // }
 
     try {
       dispatch(

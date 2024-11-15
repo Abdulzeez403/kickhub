@@ -11,9 +11,17 @@ import { Sneakers } from "@/constants/data"; // Adjust the path as needed
 import { ApIcon } from "@/src/components/icon";
 import { Link } from "expo-router";
 import { ApSearchBar } from "../home/components/searchBar";
+import { RootState } from "@/src/redux/store";
+import { useSelector } from "react-redux";
+import { IProduct } from "@/src/redux/product/type";
 
 export const ProductListScreen = () => {
-  const [filteredData, setFilteredData] = useState(Sneakers);
+  const {
+    // loading,
+    // error,
+    items: Products, // Use items for all products
+  } = useSelector((state: RootState) => state.products);
+  const [filteredData, setFilteredData] = useState(Products);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchText, setSearchText] = useState("");
   const categories = ["All", "Sneaker", "Sport", "Formal", "Adidas", "Another"];
@@ -25,23 +33,23 @@ export const ProductListScreen = () => {
   };
 
   const filterData = (category: string, search: string) => {
-    let data = Sneakers;
+    let data: IProduct[] = Products;
 
     // Filter by category
     if (category !== "All") {
       data = data.filter((item) =>
-        item.title.toLowerCase().includes(category.toLowerCase())
+        item.name.toLowerCase().includes(category.toLowerCase())
       );
     }
 
     // Filter by search text
     if (search) {
       data = data.filter((item) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
+        item.name.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    setFilteredData(data);
+    setFilteredData(data as any);
   };
 
   const handleSearch = (text: string) => {
@@ -49,25 +57,24 @@ export const ProductListScreen = () => {
     filterData(activeCategory, text);
   };
 
-  const renderSneakerItem = ({
-    item,
-  }: {
-    item: { id: number; title: string; price: number; image: any };
-  }) => (
+  const renderSneakerItem = ({ item }: { item: IProduct }) => (
     <TouchableOpacity className="bg-white rounded-lg shadow-md my-2 flex-1 mx-1 gap-x-2 relative bg-slate-200 mx-2">
       <View>
-        <Image source={item.image} className="w-full h-40 rounded-lg" />
+        <Image
+          source={{ uri: item.images[0].uri as any }}
+          className="w-full h-40 rounded-lg"
+        />
         <View className="absolute   p-2">
           <ApIcon size={25} name="hearto" type="AntDesign" color="#000" />
         </View>
-        <Text className="font-bold text-lg mt-2">{item.title}</Text>
+        <Text className="font-bold text-lg mt-2">{item.name}</Text>
         <Text className="">Men's Shoes</Text>
         <View className="flex-row justify-between px-2">
           <Text className=" text-xl font-extrabold text-gray-800 mt-2">
-            $ {item.price}
+            $ {item?.price}
           </Text>
           <View className="bg-white p-2 m-2 rounded-lg">
-            <Link href={`/(products)/${item?.id}`}>
+            <Link href={`/(products)/${item?._id}`}>
               <ApIcon
                 size={14}
                 name="arrowright"
@@ -125,7 +132,7 @@ export const ProductListScreen = () => {
       <FlatList
         data={filteredData}
         renderItem={renderSneakerItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={{ padding: 2 }}
         numColumns={2}
         ListHeaderComponent={renderHeader}

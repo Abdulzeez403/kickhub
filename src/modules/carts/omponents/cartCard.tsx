@@ -35,9 +35,7 @@ const CartCard: React.FC<CartCardProps> = ({ item, onQuantityChange }) => {
         <View>
           <Text className="text-lg font-bold">{item.name}</Text>
           <Text className="text-sm">${item.tag}</Text>
-          <Text className="text-gray-600 mt-1">
-            ${item.price * item.quantity}
-          </Text>
+          <Text className="text-gray-600 mt-1">${item.price * quantity}</Text>
         </View>
       </View>
 
@@ -49,9 +47,7 @@ const CartCard: React.FC<CartCardProps> = ({ item, onQuantityChange }) => {
           <Ionicons name="remove" size={16} color="#333" />
         </TouchableOpacity>
 
-        <Text className=" text-lg font-semibold text-center">
-          {item.quantity}
-        </Text>
+        <Text className=" text-lg font-semibold text-center">{quantity}</Text>
 
         <TouchableOpacity
           onPress={handleIncrease}
