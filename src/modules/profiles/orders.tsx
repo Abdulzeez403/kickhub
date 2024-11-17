@@ -9,14 +9,11 @@ import { useDispatch, useSelector } from "react-redux";
 const OrdersScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // Fix: Explicitly return the state.orders
-  const orders = useSelector((state: RootState) => state.orders.orders); // Make sure to access orders.orders
+  const orders = useSelector((state: RootState) => state.orders.orders);
 
   useEffect(() => {
-    // Dispatch the fetchUserOrders action when the component mounts
     dispatch(fetchUserOrders("67265fc6268e5a0d19fdcb22"));
-    console.log(orders, "the orders!..."); // Log the orders state to check
-  }, []); // Make sure to include 'orders' in the dependency array
+  }, []);
 
   const renderOrderItem = ({ item }: { item: any }) => (
     <View className=" p-4 border-b border-gray-200 bg-white rounded-md mb-2 shadow-md">
@@ -26,7 +23,11 @@ const OrdersScreen: React.FC = () => {
           <Text className="text-gray-600 bg-yellow-300 px-2 py-1 rounded-lg">
             {item.status}
           </Text>
-          <Text className="text-gray-600 font-bold bg-red-300 px-2 py-1 rounded-md text-white">
+          <Text
+            className={`text-gray-600 font-bold px-2 py-1 rounded-md text-white ${
+              item.paymentStatus === "paid" ? "bg-green-300" : "bg-red-300"
+            }`}
+          >
             {item.paymentStatus}
           </Text>
         </View>

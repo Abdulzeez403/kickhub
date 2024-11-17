@@ -7,6 +7,7 @@ const _layout = () => {
     <Stack>
       <Stack.Screen name="[id]" options={{ headerShown: false }} />
       <Stack.Screen name="carts" options={{ headerShown: false }} />
+      <Stack.Screen name="checkout" options={{ headerShown: false }} />
     </Stack>
   );
 };
