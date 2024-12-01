@@ -24,7 +24,7 @@ const OrdersScreen: React.FC = () => {
             {item.status}
           </Text>
           <Text
-            className={`text-gray-600 font-bold px-2 py-1 rounded-md text-white ${
+            className={`text-gray-600 font-bold px-2 py-1 rounded-md  ${
               item.paymentStatus === "paid" ? "bg-green-300" : "bg-red-300"
             }`}
           >

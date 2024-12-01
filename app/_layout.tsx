@@ -5,7 +5,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -39,17 +39,6 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // const checkTokenAndNavigate = async () => {
-    //  const token = await AsyncStorage.getItem('token');
-    //     if (!token) {
-    //         router.replace('/signin');
-    //     } else {
-    //         router.replace('/passcode');
-    //     }
-    // };
-
-    // checkTokenAndNavigate(); // Execute the async function
-
     // Handle splash screen
     if (loaded) {
       SplashScreen.hideAsync();

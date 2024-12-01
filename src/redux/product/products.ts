@@ -1,7 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { General_Api } from "../api";
 
-const API_URL = "http://192.168.43.233:5000/api/products"; // Adjust based on your backend
+const API_URL = `${General_Api}/products`;
 
 // Fetch all products
 export const fetchProducts = createAsyncThunk("products/fetchAll", async () => {

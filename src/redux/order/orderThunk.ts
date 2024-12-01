@@ -2,8 +2,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { OrderItems } from "./type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { General_Api } from "../api";
 
-const API_URL = "http://192.168.43.233:5000/api/orders"; // Adjust based on your backend
+const API_URL = `${General_Api}/orders`;
 
 export const placeOrder = createAsyncThunk(
   "order/placeOrder",
@@ -18,7 +19,7 @@ export const placeOrder = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      throw new Error("Failed to place order"); // You can further customize error handling
+      throw new Error("Failed to place order");
     }
   }
 );
@@ -29,14 +30,11 @@ export const fetchUserOrders = createAsyncThunk(
     const token = await AsyncStorage.getItem("userToken");
 
     try {
-      const response = await axios.get(
-        `http://192.168.43.233:5000/api/orders/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_URL}${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch user orders");

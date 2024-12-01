@@ -8,9 +8,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { RootState } from "@/src/redux/store";
+import { useSelector } from "react-redux";
 
 const ProfileScreen: React.FC = () => {
   const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const handleWishlist = () => {
     router.push("/wishlist");
@@ -28,11 +31,11 @@ const ProfileScreen: React.FC = () => {
     <SafeAreaView className="flex-1 bg-white px-4 pt-4">
       <View className="items-center mb-6 mt-6">
         <Image
-          source={{ uri: "https://placekitten.com/200/200" }} // Replace with actual user image URL
+          source={{ uri: "https://placekitten.com/200/200" }}
           className="w-24 h-24 rounded-full mb-4"
         />
-        <Text className="text-lg font-bold">Abdulazeez Sdoiq</Text>
-        <Text className="text-gray-500">AbdulazeezSdoiq@gmail.com</Text>
+        <Text className="text-lg font-bold">{user?.firstName}</Text>
+        <Text className="text-gray-500">{user?.email}</Text>
       </View>
 
       {/* Quick Actions */}
