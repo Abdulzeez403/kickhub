@@ -64,14 +64,14 @@ const CheckoutScreen: React.FC = () => {
 
   return (
     <PaperProvider>
-      <SafeAreaView className="flex-1 p-4 bg-white">
+      <SafeAreaView className="flex-1  bg-white">
         <ApHeader title="Checkout" cartCount={cartItems.length} />
 
         <FlatList
           data={cartItems}
           keyExtractor={(item) => item?._id}
           renderItem={({ item }) => (
-            <View className="flex-row justify-between py-2 border-b border-gray-300">
+            <View className="flex-row justify-between py-2 border-b border-gray-300 px-4">
               <Text className="text-lg">{item.name}</Text>
               <Text className="text-lg font-bold">
                 ${item.price * item.quantity}
@@ -80,7 +80,7 @@ const CheckoutScreen: React.FC = () => {
           )}
           ListFooterComponent={() => (
             <>
-              <View className="flex-row justify-between py-2 mt-5">
+              <View className="flex-row justify-between py-2 mt-5 px-4">
                 <Text className="text-xl font-bold">Total Amount:</Text>
                 <Text className="text-xl font-bold text-gray-700">
                   ${originalTotalPrice}

@@ -18,11 +18,7 @@ import { IProduct } from "@/src/redux/product/type";
 import { fetchProducts } from "@/src/redux/product/products";
 
 export const ProductList = () => {
-  const {
-    // loading,
-    // error,
-    items: Products, // Use items for all products
-  } = useSelector((state: RootState) => state.products);
+  const { items: Products } = useSelector((state: RootState) => state.products);
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
   const [filteredData, setFilteredData] = useState(Products);

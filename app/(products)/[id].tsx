@@ -47,18 +47,16 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const width = Dimensions.get("window").width;
   const cartItems = useSelector((state: RootState) => state.cart.items);
-  const { loading, error, product } = useSelector(
-    (state: RootState) => state.products
-  );
-  const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
+  const { product } = useSelector((state: RootState) => state.products);
+
   const handleCartPress = () => {
-    isLoggedIn ? router.navigate("./carts") : router.navigate("/signup");
+    isLoggedIn ? router.navigate("/carts") : router.navigate("/signup");
     console.log("working...");
   };
 
@@ -122,7 +120,7 @@ const ProductDetail = () => {
     <SafeAreaView className="flex-1 bg-white">
       <ApHeader
         title={product?.name as any}
-        onCartPress={handleCartPress}
+        onCartPress={() => handleCartPress()}
         cartCount={cartItems?.length}
       />
 

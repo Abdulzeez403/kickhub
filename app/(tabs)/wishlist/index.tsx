@@ -1,12 +1,18 @@
-import { Sneakers } from "@/constants/data";
+import { ApEmpty } from "@/src/components/empty";
 import ApHeader from "@/src/components/header";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import { SwipeListView } from "react-native-swipe-list-view";
 
 const WishlistScreen: React.FC = () => {
-  const [listData, setListData] = useState(Sneakers);
+  const [listData, setListData] = useState([]);
 
   const handleDelete = (id: string) => {
     setListData(listData.filter((item: any) => item.id !== id));
@@ -37,17 +43,33 @@ const WishlistScreen: React.FC = () => {
   );
 
   return (
-    <View className=" bg-white px-4">
-      <ApHeader title="WishLists" rightIcon="cart" cartCount={4} />
+    <SafeAreaView
+      style={{
+        flex: 1,
+        padding: 16,
+        paddingTop: 0,
+        backgroundColor: "white",
+      }}
+    >
+      {/* <View className=" bg-white px-4"> */}
+      <ApHeader title="WishLists" cartCount={4} />
 
-      <SwipeListView
-        data={listData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        renderHiddenItem={renderHiddenItem}
-        rightOpenValue={-75}
-      />
-    </View>
+      {listData.length == 0 ? (
+        <ApEmpty
+          imageSource={require("../../../assets/images/kickhubProducts/emptyCart.png")}
+          message="Your wishlist is empty"
+        />
+      ) : (
+        <SwipeListView
+          data={listData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          renderHiddenItem={renderHiddenItem}
+          rightOpenValue={-75}
+        />
+      )}
+      {/* </View> */}
+    </SafeAreaView>
   );
 };
 
