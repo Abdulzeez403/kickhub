@@ -43,9 +43,8 @@ const OrdersScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 px-4">
+    <SafeAreaView className="flex-1 bg-slate-100">
       <ApHeader title="My Orders" />
-
       {orders?.length === 0 ? (
         <ApEmpty
           imageSource={require("../../../assets/images/kickhubProducts/emptyCart.png")}

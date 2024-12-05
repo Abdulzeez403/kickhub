@@ -16,9 +16,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/src/redux/store";
 import { IProduct } from "@/src/redux/product/type";
 import { fetchProducts } from "@/src/redux/product/products";
+import { ActivityIndicator } from "react-native-paper";
 
 export const ProductList = () => {
-  const { items: Products } = useSelector((state: RootState) => state.products);
+  const {
+    loading,
+    error,
+    items: Products,
+  } = useSelector((state: RootState) => state.products);
   const cartItems = useSelector((state: RootState) => state.cart.items);
 
   const [filteredData, setFilteredData] = useState(Products);
@@ -28,11 +33,6 @@ export const ProductList = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const isLoggedIn = useSelector((state: RootState) => !!state.auth.user);
-
-  const { user, loading, error } = useSelector(
-    (state: RootState) => state.auth
-  );
-
   useEffect(() => {
     dispatch(currentUser());
     dispatch(fetchProducts());
@@ -162,7 +162,7 @@ export const ProductList = () => {
   };
 
   return (
-    <View className="bg-white">
+    <View className="flex-1 bg-white">
       <FlatList
         data={filteredData}
         renderItem={renderSneakerItem}
@@ -170,6 +170,22 @@ export const ProductList = () => {
         contentContainerStyle={{ padding: 2 }}
         numColumns={2}
         ListHeaderComponent={renderHeader}
+        ListEmptyComponent={
+          !loading ? (
+            <View className="flex-1 justify-center items-center py-10">
+              <Text className="text-gray-500 text-lg text-center">
+                No products found.
+              </Text>
+            </View>
+          ) : null
+        }
+        ListFooterComponent={
+          loading ? (
+            <View className="py-4">
+              <ActivityIndicator size="large" color="#000" />
+            </View>
+          ) : null
+        }
       />
     </View>
   );

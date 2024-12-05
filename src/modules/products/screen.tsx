@@ -7,24 +7,24 @@ import {
   ScrollView,
 } from "react-native";
 import React, { useState } from "react";
-import { Sneakers } from "@/constants/data"; // Adjust the path as needed
 import { ApIcon } from "@/src/components/icon";
 import { Link } from "expo-router";
 import { ApSearchBar } from "../home/components/searchBar";
 import { RootState } from "@/src/redux/store";
 import { useSelector } from "react-redux";
 import { IProduct } from "@/src/redux/product/type";
+import { ActivityIndicator } from "react-native-paper";
 
 export const ProductListScreen = () => {
   const {
-    // loading,
-    // error,
+    loading,
+    error,
     items: Products, // Use items for all products
   } = useSelector((state: RootState) => state.products);
   const [filteredData, setFilteredData] = useState(Products);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [searchText, setSearchText] = useState("");
   const categories = ["All", "Sneaker", "Sport", "Formal", "Adidas", "Another"];
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
+  const [searchText, setSearchText] = useState("");
 
   // Function to filter sneakers based on category and search text
   const handleFilterPress = (category: string) => {
@@ -128,7 +128,7 @@ export const ProductListScreen = () => {
   };
 
   return (
-    <View className="bg-white">
+    <View className="flex-1 bg-white">
       <FlatList
         data={filteredData}
         renderItem={renderSneakerItem}
@@ -136,6 +136,22 @@ export const ProductListScreen = () => {
         contentContainerStyle={{ padding: 2 }}
         numColumns={2}
         ListHeaderComponent={renderHeader}
+        ListEmptyComponent={
+          !loading ? (
+            <View className="flex-1 justify-center items-center py-10">
+              <Text className="text-gray-500 text-lg text-center">
+                No products found.
+              </Text>
+            </View>
+          ) : null
+        }
+        ListFooterComponent={
+          loading ? (
+            <View className="py-4">
+              <ActivityIndicator size="large" color="#000" />
+            </View>
+          ) : null
+        }
       />
     </View>
   );

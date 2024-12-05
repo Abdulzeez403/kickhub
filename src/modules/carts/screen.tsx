@@ -37,14 +37,7 @@ const CartScreen: React.FC = () => {
   }, [cartItems]);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        padding: 16,
-        paddingTop: 0,
-        backgroundColor: "white",
-      }}
-    >
+    <SafeAreaView className="flex-1">
       <ApHeader
         title="Carts"
         onCartPress={handleCartPress}

@@ -66,7 +66,6 @@ const CheckoutScreen: React.FC = () => {
     <PaperProvider>
       <SafeAreaView className="flex-1  bg-white">
         <ApHeader title="Checkout" cartCount={cartItems.length} />
-
         <FlatList
           data={cartItems}
           keyExtractor={(item) => item?._id}
@@ -78,19 +77,17 @@ const CheckoutScreen: React.FC = () => {
               </Text>
             </View>
           )}
-          ListFooterComponent={() => (
-            <>
-              <View className="flex-row justify-between py-2 mt-5 px-4">
-                <Text className="text-xl font-bold">Total Amount:</Text>
-                <Text className="text-xl font-bold text-gray-700">
-                  ${originalTotalPrice}
-                </Text>
-              </View>
-            </>
-          )}
+          ListFooterComponent={
+            <View className="flex-row justify-between py-2 mt-5 px-4">
+              <Text className="text-xl font-bold">Total Amount:</Text>
+              <Text className="text-xl font-bold text-gray-700">
+                ${originalTotalPrice}
+              </Text>
+            </View>
+          }
         />
 
-        <View className="mt-10 px-4">
+        <View className="mt-10 px-4 mb-2">
           <Button
             mode="contained"
             onPress={handlePlaceOrder}

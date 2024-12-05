@@ -8,7 +8,7 @@ interface HeaderProps {
   title: string;
   onBack?: () => void;
   onCartPress?: () => void;
-  cartCount: number;
+  cartCount?: null | number;
 }
 
 const ApHeader: React.FC<HeaderProps> = ({
@@ -32,7 +32,7 @@ const ApHeader: React.FC<HeaderProps> = ({
           onPress={onCartPress}
           accessibilityLabel="Cart"
         />
-        {cartCount > 0 && (
+        {cartCount != null && cartCount > 0 && (
           <Badge
             style={{
               position: "absolute",

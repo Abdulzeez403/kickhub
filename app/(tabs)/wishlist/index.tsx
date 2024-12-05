@@ -43,16 +43,8 @@ const WishlistScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        padding: 16,
-        paddingTop: 0,
-        backgroundColor: "white",
-      }}
-    >
-      {/* <View className=" bg-white px-4"> */}
-      <ApHeader title="WishLists" cartCount={4} />
+    <SafeAreaView className="flex-1 bg-white">
+      <ApHeader title="WishLists" />
 
       {listData.length == 0 ? (
         <ApEmpty
@@ -68,7 +60,6 @@ const WishlistScreen: React.FC = () => {
           rightOpenValue={-75}
         />
       )}
-      {/* </View> */}
     </SafeAreaView>
   );
 };

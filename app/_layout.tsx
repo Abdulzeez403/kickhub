@@ -15,6 +15,7 @@ import Toast from "react-native-toast-message";
 import { useColorScheme } from "react-native";
 import store from "@/src/redux/store";
 import { Provider } from "react-redux";
+import * as Updates from "expo-updates";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,6 +46,22 @@ export default function RootLayout() {
     }
 
     if (error) throw error;
+
+    // Check for updates when the app is loaded
+    async function checkForUpdates() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          // Reload the app to apply the update
+          await Updates.reloadAsync();
+        }
+      } catch (e) {
+        console.error("Error checking for updates:", e);
+      }
+    }
+
+    checkForUpdates();
   }, [loaded, error]);
 
   if (!loaded) {
@@ -56,7 +73,6 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>

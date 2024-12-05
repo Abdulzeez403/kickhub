@@ -26,7 +26,7 @@ const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 px-4">
+    <SafeAreaView className="flex-1 bg-gray-100">
       <ApHeader title="Settings" />
 
       {/* Personal Information Section */}
